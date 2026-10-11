@@ -81,6 +81,9 @@ CXXFLAGS = [
     "-g",
     "-Wall",
     "-Werror",
+    # ANTLR 4.7 emits these warnings with current GCC versions.
+    "-Wno-overloaded-virtual",
+    "-Wno-attributes",
     "-Wno-trigraphs",
 ]
 
@@ -189,7 +192,7 @@ if COMPILE is not None:
     execute = env.Command(
         target = "execute",
         source = [LINK_EXE],
-        action = "build\compiler samples/{}.c".format(COMPILE),
+        action = os.path.join("build", "compiler.exe" if os.name == "nt" else "compiler") + " samples/{}.c".format(COMPILE),
     )
 
     Default(execute)
