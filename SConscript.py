@@ -93,7 +93,7 @@ CXXFLAGS_NO_WARNINGS = [
 
 # Main environment
 env = Environment(
-    tools      = ["mingw", "g++"],
+    tools      = ["default", "g++"],
     ENV        = os.environ,
     CPPPATH    = CPPPATH,
     LINKFLAGS  = ["-static-libstdc++"],
