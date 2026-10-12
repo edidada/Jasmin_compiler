@@ -14,18 +14,34 @@ jobs:
 
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           submodules: recursive
 
       - name: Set up JDK
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '11'
 
       - name: Install build dependency
         run: sudo apt-get update && sudo apt-get install --yes scons
+
+      - name: Build ANTLR runtime for Ubuntu
+        run: |
+          mkdir -p build/antlr4-runtime
+          cd build/antlr4-runtime
+          find "$GITHUB_WORKSPACE/antlr4-runtime" -type f -name '*.cpp' -print0 | \
+          xargs -0 -r -P "$(nproc)" -n 1 g++ -std=c++11 -w -fPIC \
+            -I "$GITHUB_WORKSPACE/antlr4-runtime" \
+            -I "$GITHUB_WORKSPACE/antlr4-runtime/atn" \
+            -I "$GITHUB_WORKSPACE/antlr4-runtime/dfa" \
+            -I "$GITHUB_WORKSPACE/antlr4-runtime/misc" \
+            -I "$GITHUB_WORKSPACE/antlr4-runtime/support" \
+            -I "$GITHUB_WORKSPACE/antlr4-runtime/tree" \
+            -I "$GITHUB_WORKSPACE/antlr4-runtime/tree/pattern" \
+            -I "$GITHUB_WORKSPACE/antlr4-runtime/tree/xpath" -c
+          ar rcs "$GITHUB_WORKSPACE/libs/libantlr-runtime.a" ./*.o
 
       - name: Generate parser and build compiler
         run: scons -Q
